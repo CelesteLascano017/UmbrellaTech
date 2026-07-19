@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% import 'components/macros.html' as ui %}
+
+{% block title %}Clientes - Umbrella Tech{% endblock %}
+{% block page_title %}Clientes Umbrella Tech{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end align-items-center mb-3">
+    <!-- Componente para simular selector de sede visualmente si fuese necesario, 
+         aunque clientes es vista global, el mockup dice "Sede Floresta/Sur" arriba a la derecha. -->
+    <div class="badge bg-light text-dark border p-2">
+        Sede: <span class="fw-bold">General</span>
+    </div>
+</div>
+
+{% call ui.toolbar('Clientes', '') %}
+    {{ ui.btn('Nuevo', icon='fas fa-plus', type='primary') }}
+    {{ ui.btn('Editar', icon='fas fa-pen', type='outline') }}
+    {{ ui.btn('Eliminar', icon='fas fa-trash', type='outline') }}
+    {{ ui.btn('Actualizar', icon='fas fa-sync', type='outline') }}
+{% endcall %}
+
+{% call ui.table_base(['Id Cliente', 'Sede', 'Nombre', 'Apellido', 'Dirección', 'Teléfono']) %}
+    <tr>
+        <td colspan="6" class="text-center py-4 text-muted">Módulo en construcción (Próxima etapa)</td>
+    </tr>
+{% endcall %}
+
+{{ ui.pagination() }}
+{% endblock %}

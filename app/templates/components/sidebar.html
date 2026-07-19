@@ -1,0 +1,34 @@
+<div class="sidebar d-flex flex-column">
+    <div class="brand">
+        <!-- Reemplazar con el logo real posteriormente -->
+        <i class="fas fa-umbrella fa-2x text-danger mb-2"></i>
+        <span>Umbrella Tech</span>
+    </div>
+    
+    <div class="flex-grow-1">
+        <a href="/dashboard" class="{% if active_page == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i> Dashboard
+        </a>
+        <a href="/clientes" class="{% if active_page == 'clientes' %}active{% endif %}">
+            <i class="fas fa-users"></i> Clientes
+        </a>
+        <a href="/productos" class="{% if active_page == 'productos' %}active{% endif %}">
+            <i class="fas fa-box"></i> Productos
+        </a>
+        <a href="/inventario" class="{% if active_page == 'inventario' %}active{% endif %}">
+            <i class="fas fa-warehouse"></i> Inventario
+        </a>
+        <a href="/facturas" class="{% if active_page == 'facturas' %}active{% endif %}">
+            <i class="fas fa-file-invoice-dollar"></i> Facturas
+        </a>
+        <a href="/empleados" class="{% if active_page == 'empleados' %}active{% endif %}">
+            <i class="fas fa-id-badge"></i> Empleados
+        </a>
+    </div>
+    
+    <div class="mt-auto mb-4">
+        <a href="/login" class="text-danger">
+            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+        </a>
+    </div>
+</div>

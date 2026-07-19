@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Ingreso - Umbrella Tech{% endblock %}
+
+{% block layout %}
+<div class="login-container">
+    <div class="login-card">
+        <i class="fas fa-umbrella fa-4x text-danger mb-3"></i>
+        <h2>Umbrella Tech</h2>
+        <p>Sistema Distribuido de Gestión</p>
+        
+        <form action="/dashboard" method="GET">
+            <div class="mb-3 text-start">
+                <label for="cedula" class="form-label fw-bold">Cédula</label>
+                <input type="text" class="form-control" id="cedula" placeholder="Ingrese su cédula" required>
+            </div>
+            <!-- En los mockups no hay password, solo "Cédula", pero agregaré password por si acaso o lo omitiré para seguir el mockup fielmente (en el mockup dice "Cédula" y un input, luego "Ingresar") -->
+            <button type="submit" class="btn btn-primary-umbrella mt-3">Ingresar</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

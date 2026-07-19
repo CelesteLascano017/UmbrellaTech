@@ -1,0 +1,56 @@
+{% macro btn(text, icon='', type='primary', action='', extra_classes='') %}
+<button class="btn btn-{{ type }}-umbrella {{ extra_classes }}" {% if action %}onclick="{{ action }}"{% endif %}>
+    {% if icon %}<i class="{{ icon }} me-2"></i>{% endif %}{{ text }}
+</button>
+{% endmacro %}
+
+{% macro search_bar(placeholder='Buscar...') %}
+<div class="input-group" style="max-width: 300px;">
+    <input type="text" class="form-control" placeholder="{{ placeholder }}">
+    <button class="btn btn-outline-secondary" type="button">
+        <i class="fas fa-search"></i>
+    </button>
+</div>
+{% endmacro %}
+
+{% macro table_base(headers, id='') %}
+<div class="table-responsive">
+    <table class="table table-hover table-umbrella" {% if id %}id="{{ id }}"{% endif %}>
+        <thead>
+            <tr>
+                {% for header in headers %}
+                <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {{ caller() }}
+        </tbody>
+    </table>
+</div>
+{% endmacro %}
+
+{% macro pagination() %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-end">
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+        </li>
+        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item">
+            <a class="page-link" href="#">Siguiente</a>
+        </li>
+    </ul>
+</nav>
+{% endmacro %}
+
+{% macro toolbar(title, actions) %}
+<div class="toolbar-umbrella">
+    {{ search_bar() }}
+    <div class="toolbar-actions">
+        {{ caller() }}
+    </div>
+</div>
+{% endmacro %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% import 'components/macros.html' as ui %}
+
+{% block title %}Productos - Umbrella Tech{% endblock %}
+{% block page_title %}Productos Umbrella Tech{% endblock %}
+
+{% block content %}
+{% call ui.toolbar('Productos', '') %}
+    {{ ui.btn('Nuevo', icon='fas fa-plus', type='primary') }}
+    {{ ui.btn('Editar', icon='fas fa-pen', type='outline') }}
+    {{ ui.btn('Eliminar', icon='fas fa-trash', type='outline') }}
+    {{ ui.btn('Actualizar', icon='fas fa-sync', type='outline') }}
+{% endcall %}
+
+{% call ui.table_base(['Id Producto', 'Nombre', 'Marca', 'Modelo', 'Precio']) %}
+    <tr>
+        <td colspan="5" class="text-center py-4 text-muted">Módulo en construcción (Próxima etapa)</td>
+    </tr>
+{% endcall %}
+
+{{ ui.pagination() }}
+{% endblock %}

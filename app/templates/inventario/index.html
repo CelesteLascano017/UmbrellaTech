@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% import 'components/macros.html' as ui %}
+
+{% block title %}Inventario - Umbrella Tech{% endblock %}
+{% block page_title %}Inventario Umbrella Tech{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end align-items-center mb-3">
+    <!-- Visual representation of Sede switch as per mockup -->
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-primary-umbrella">Floresta</button>
+        <button type="button" class="btn btn-outline-umbrella">Sur</button>
+    </div>
+</div>
+
+{% call ui.toolbar('Inventario', '') %}
+    {{ ui.btn('Nuevo', icon='fas fa-plus', type='primary') }}
+    {{ ui.btn('Editar', icon='fas fa-pen', type='outline') }}
+    {{ ui.btn('Eliminar', icon='fas fa-trash', type='outline') }}
+    {{ ui.btn('Actualizar', icon='fas fa-sync', type='outline') }}
+{% endcall %}
+
+{% call ui.table_base(['Id Sede', 'Id Producto', 'Producto', 'Cantidad']) %}
+    <tr>
+        <td colspan="4" class="text-center py-4 text-muted">Módulo en construcción (Próxima etapa)</td>
+    </tr>
+{% endcall %}
+
+{{ ui.pagination() }}
+{% endblock %}
