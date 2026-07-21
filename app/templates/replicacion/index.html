@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Estado de replicación - Umbrella Tech{% endblock %}
+{% block page_title %}Estado de replicación{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <p class="mb-0 text-muted">Verificación entre Tienda Floresta y Tienda Sur</p>
+    <button id="refresh-replication-button" type="button" class="btn btn-primary-umbrella">
+        <i class="fas fa-arrows-rotate me-2"></i>Actualizar estado
+    </button>
+</div>
+
+<div id="replication-message" class="d-none" role="alert"></div>
+
+<section class="card-umbrella p-4 mb-4" aria-live="polite">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <div class="text-muted small text-uppercase">Estado general de los datos</div>
+            <div id="replication-general-status" class="badge text-bg-secondary fs-6 mt-1">Comprobando...</div>
+        </div>
+        <div class="text-md-end">
+            <div class="text-muted small">Última comprobación</div>
+            <div id="replication-last-check" class="fw-semibold">—</div>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <section class="card-umbrella h-100 p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <div class="text-muted small text-uppercase">Nodo publicador</div>
+                    <h2 id="publisher-name" class="h4 mb-0">Tienda Floresta</h2>
+                </div>
+                <span class="badge text-bg-danger">Publicador / Distribuidor</span>
+            </div>
+            <dl class="row mb-0">
+                <dt class="col-sm-5 text-muted">Sede</dt><dd id="publisher-branch" class="col-sm-7">001</dd>
+                <dt class="col-sm-5 text-muted">Servidor</dt><dd id="publisher-server" class="col-sm-7">—</dd>
+                <dt class="col-sm-5 text-muted">Base de datos</dt><dd id="publisher-database" class="col-sm-7">—</dd>
+                <dt class="col-sm-5 text-muted">Estado</dt><dd class="col-sm-7 mb-0"><span id="publisher-status" class="badge text-bg-secondary">Comprobando...</span></dd>
+            </dl>
+        </section>
+    </div>
+    <div class="col-lg-6">
+        <section class="card-umbrella h-100 p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <div class="text-muted small text-uppercase">Nodo suscriptor</div>
+                    <h2 id="subscriber-name" class="h4 mb-0">Tienda Sur</h2>
+                </div>
+                <span class="badge text-bg-danger">Suscriptor</span>
+            </div>
+            <dl class="row mb-0">
+                <dt class="col-sm-5 text-muted">Sede</dt><dd id="subscriber-branch" class="col-sm-7">002</dd>
+                <dt class="col-sm-5 text-muted">Linked Server</dt><dd id="subscriber-server" class="col-sm-7">DUMDUM</dd>
+                <dt class="col-sm-5 text-muted">Base de datos</dt><dd id="subscriber-database" class="col-sm-7">TIENDA_SUR</dd>
+                <dt class="col-sm-5 text-muted">Estado</dt><dd class="col-sm-7 mb-0"><span id="subscriber-status" class="badge text-bg-secondary">Comprobando...</span></dd>
+            </dl>
+        </section>
+    </div>
+</div>
+
+<section class="mb-4" aria-label="Resumen de productos">
+    <div class="row g-3">
+        <div class="col-6 col-md-4 col-xl-2"><div class="card-umbrella h-100 p-3"><div class="text-muted small">Productos en Floresta</div><div id="summary-floresta" class="fs-3 fw-semibold">—</div></div></div>
+        <div class="col-6 col-md-4 col-xl-2"><div class="card-umbrella h-100 p-3"><div class="text-muted small">Productos en Sur</div><div id="summary-sur" class="fs-3 fw-semibold">—</div></div></div>
+        <div class="col-6 col-md-4 col-xl-2"><div class="card-umbrella h-100 p-3"><div class="text-muted small">Sincronizados</div><div id="summary-synchronized" class="fs-3 fw-semibold">—</div></div></div>
+        <div class="col-6 col-md-4 col-xl-2"><div class="card-umbrella h-100 p-3"><div class="text-muted small">Pendientes</div><div id="summary-pending" class="fs-3 fw-semibold">—</div></div></div>
+        <div class="col-6 col-md-4 col-xl-2"><div class="card-umbrella h-100 p-3"><div class="text-muted small">Solo en Sur</div><div id="summary-only-sur" class="fs-3 fw-semibold">—</div></div></div>
+        <div class="col-6 col-md-4 col-xl-2"><div class="card-umbrella h-100 p-3"><div class="text-muted small">Diferentes</div><div id="summary-different" class="fs-3 fw-semibold">—</div></div></div>
+    </div>
+</section>
+
+<div class="alert alert-warning d-flex gap-3 align-items-start mb-4" role="note">
+    <i class="fas fa-circle-info mt-1"></i>
+    <span>El estado técnico de la publicación, suscripción y agentes se comprueba mediante SQL Server Replication Monitor. Esta pantalla verifica la disponibilidad de los nodos y la consistencia de los datos replicados.</span>
+</div>
+
+<div class="toolbar-umbrella">
+    <div class="input-group" style="max-width: 360px;">
+        <input id="replication-search" type="search" class="form-control" placeholder="Buscar por ID, nombre o estado" aria-label="Buscar comparación">
+        <button id="replication-search-button" class="btn btn-outline-secondary" type="button" aria-label="Buscar"><i class="fas fa-search"></i></button>
+    </div>
+    <div class="toolbar-actions">
+        <label class="visually-hidden" for="replication-status-filter">Filtrar por estado</label>
+        <select id="replication-status-filter" class="form-select" style="min-width: 190px;">
+            <option value="all">Todos</option>
+            <option value="synchronized">Sincronizados</option>
+            <option value="pending">Pendientes</option>
+            <option value="different">Diferentes</option>
+        </select>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table id="replication-table" class="table table-hover table-umbrella">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Producto en Floresta</th>
+                <th>Producto en Sur</th>
+                <th>Precio Floresta</th>
+                <th>Precio Sur</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="6" class="text-center py-4 text-muted">Comprobando estado de replicación...</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}<script src="{{ url_for('static', path='/js/replication.js') }}"></script>{% endblock %}

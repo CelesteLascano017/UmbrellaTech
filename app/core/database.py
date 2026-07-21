@@ -77,8 +77,12 @@ class DatabaseManager:
                 connection.close()
 
     @contextmanager
-    def _cursor(self, connection: pyodbc.Connection) -> Iterator[pyodbc.Cursor]:
+    def _cursor(
+        self, connection: pyodbc.Connection, query_timeout: int | None = None
+    ) -> Iterator[pyodbc.Cursor]:
         try:
+            if query_timeout is not None:
+                connection.timeout = query_timeout
             with connection.cursor() as cursor:
                 yield cursor
         except pyodbc.Error as error:
@@ -96,15 +100,31 @@ class DatabaseManager:
         columns = [column[0] for column in cursor.description or []]
         return [dict(zip(columns, row)) for row in rows]
 
-    def fetch_all(self, query: str, parameters: Sequence[Any] = ()) -> list[dict[str, Any]]:
+    def fetch_all(
+        self,
+        query: str,
+        parameters: Sequence[Any] = (),
+        *,
+        query_timeout: int | None = None,
+    ) -> list[dict[str, Any]]:
         """Execute a parameterized SELECT query and return all rows."""
-        with self.connection() as connection, self._cursor(connection) as cursor:
+        with self.connection() as connection, self._cursor(
+            connection, query_timeout
+        ) as cursor:
             cursor.execute(query, tuple(parameters))
             return self._rows_to_dicts(cursor, cursor.fetchall())
 
-    def fetch_one(self, query: str, parameters: Sequence[Any] = ()) -> dict[str, Any] | None:
+    def fetch_one(
+        self,
+        query: str,
+        parameters: Sequence[Any] = (),
+        *,
+        query_timeout: int | None = None,
+    ) -> dict[str, Any] | None:
         """Execute a parameterized SELECT query and return the first row, if any."""
-        with self.connection() as connection, self._cursor(connection) as cursor:
+        with self.connection() as connection, self._cursor(
+            connection, query_timeout
+        ) as cursor:
             cursor.execute(query, tuple(parameters))
             row = cursor.fetchone()
             if row is None:

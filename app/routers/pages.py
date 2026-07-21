@@ -14,6 +14,10 @@ async def login(request: Request):
 async def dashboard(request: Request):
     return templates.TemplateResponse("dashboard.html", {"request": request, "active_page": "dashboard"})
 
+@router.get("/replicacion", response_class=HTMLResponse)
+async def replicacion(request: Request):
+    return templates.TemplateResponse("replicacion/index.html", {"request": request, "active_page": "replicacion"})
+
 @router.get("/clientes", response_class=HTMLResponse)
 async def clientes(request: Request):
     return templates.TemplateResponse("clientes/index.html", {"request": request, "active_page": "clientes"})
