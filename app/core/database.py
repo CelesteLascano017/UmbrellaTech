@@ -114,17 +114,20 @@ class DatabaseManager:
     def execute_and_fetch_one(
         self, query: str, parameters: Sequence[Any] = ()
     ) -> dict[str, Any] | None:
-        """Execute a parameterized command and return its first result row."""
+        """Execute a command and return a row from its first populated result set."""
         with self.connection() as connection:
             try:
                 with self._cursor(connection) as cursor:
                     cursor.execute(query, tuple(parameters))
-                    while cursor.description is None:
+                    result: dict[str, Any] | None = None
+                    while True:
+                        if cursor.description is not None:
+                            row = cursor.fetchone()
+                            if row is not None:
+                                result = self._rows_to_dicts(cursor, [row])[0]
+                                break
                         if not cursor.nextset():
-                            connection.commit()
-                            return None
-                    row = cursor.fetchone()
-                    result = None if row is None else self._rows_to_dicts(cursor, [row])[0]
+                            break
                 connection.commit()
                 return result
             except DatabaseQueryError:

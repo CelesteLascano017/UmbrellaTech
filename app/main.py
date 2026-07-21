@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from app.core.config import get_settings
 from app.core.logging_config import configure_logging
-from app.routers import clients, health, pages
+from app.routers import clients, health, pages, products
 
 configure_logging()
 settings = get_settings()
@@ -20,3 +20,4 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(pages.router)
 app.include_router(health.router)
 app.include_router(clients.router)
+app.include_router(products.router)

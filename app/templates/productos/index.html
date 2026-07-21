@@ -5,18 +5,41 @@
 {% block page_title %}Productos Umbrella Tech{% endblock %}
 
 {% block content %}
-{% call ui.toolbar('Productos', '') %}
-    {{ ui.btn('Nuevo', icon='fas fa-plus', type='primary') }}
-    {{ ui.btn('Editar', icon='fas fa-pen', type='outline') }}
-    {{ ui.btn('Eliminar', icon='fas fa-trash', type='outline') }}
-    {{ ui.btn('Actualizar', icon='fas fa-sync', type='outline') }}
-{% endcall %}
+<div class="toolbar-umbrella">
+    <div class="input-group" style="max-width: 300px;">
+        <input id="product-search" type="search" class="form-control" placeholder="Buscar productos...">
+        <button id="product-search-button" class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
+    </div>
+    <div class="toolbar-actions">
+        <button type="button" class="btn btn-primary-umbrella" data-bs-toggle="modal" data-bs-target="#productCreateModal"><i class="fas fa-plus me-2"></i>Nuevo</button>
+        <button id="edit-product-button" type="button" class="btn btn-outline-umbrella" disabled><i class="fas fa-pen me-2"></i>Editar</button>
+        <button id="delete-product-button" type="button" class="btn btn-outline-umbrella" disabled><i class="fas fa-trash me-2"></i>Eliminar</button>
+        <button id="refresh-products-button" type="button" class="btn btn-outline-umbrella"><i class="fas fa-sync me-2"></i>Actualizar</button>
+    </div>
+</div>
 
-{% call ui.table_base(['Id Producto', 'Nombre', 'Marca', 'Modelo', 'Precio']) %}
-    <tr>
-        <td colspan="5" class="text-center py-4 text-muted">Módulo en construcción (Próxima etapa)</td>
-    </tr>
+{% call ui.table_base(['ID', 'Nombre', 'Marca', 'Modelo', 'Descripción', 'Precio'], id='products-table') %}
+    <tr><td colspan="6" class="text-center py-4 text-muted">Cargando productos...</td></tr>
 {% endcall %}
 
 {{ ui.pagination() }}
+
+{% macro product_fields(prefix='', include_id=false, readonly_id=false) %}
+<div class="row g-3">
+    {% if include_id %}<div class="col-md-4"><label for="{{ prefix }}id_producto" class="form-label">ID del producto</label><input id="{{ prefix }}id_producto" {% if not readonly_id %}name="id_producto"{% endif %} type="number" min="1" class="form-control" {% if readonly_id %}readonly{% else %}required{% endif %}></div>{% endif %}
+    <div class="col-md-6"><label for="{{ prefix }}nombre" class="form-label">Nombre</label><input id="{{ prefix }}nombre" name="nombre" type="text" maxlength="100" class="form-control" required></div>
+    <div class="col-md-6"><label for="{{ prefix }}marca" class="form-label">Marca</label><input id="{{ prefix }}marca" name="marca" type="text" maxlength="50" class="form-control"></div>
+    <div class="col-md-6"><label for="{{ prefix }}modelo" class="form-label">Modelo</label><input id="{{ prefix }}modelo" name="modelo" type="text" maxlength="50" class="form-control"></div>
+    <div class="col-md-6"><label for="{{ prefix }}precio" class="form-label">Precio</label><input id="{{ prefix }}precio" name="precio" type="number" min="0" step="0.01" class="form-control"></div>
+    <div class="col-12"><label for="{{ prefix }}descripcion" class="form-label">Descripción</label><input id="{{ prefix }}descripcion" name="descripcion" type="text" maxlength="200" class="form-control"></div>
+</div>
+{% endmacro %}
+
+<div class="modal fade" id="productCreateModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><form id="product-create-form"><div class="modal-header"><h5 class="modal-title">Nuevo producto</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><div id="product-create-message" class="d-none" role="alert"></div>{{ product_fields('', true) }}</div><div class="modal-footer"><button type="button" class="btn btn-outline-umbrella" data-bs-dismiss="modal">Cancelar</button><button id="product-create-submit" type="submit" class="btn btn-primary-umbrella">Guardar producto</button></div></form></div></div></div>
+
+<div class="modal fade" id="productEditModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><form id="product-edit-form"><div class="modal-header"><h5 class="modal-title">Editar producto</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><div id="product-edit-message" class="d-none" role="alert"></div>{{ product_fields('edit-', true, true) }}</div><div class="modal-footer"><button type="button" class="btn btn-outline-umbrella" data-bs-dismiss="modal">Cancelar</button><button id="product-edit-submit" type="submit" class="btn btn-primary-umbrella">Guardar cambios</button></div></form></div></div></div>
+
+<div class="modal fade" id="productDeleteModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Eliminar producto</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><div id="product-delete-message" class="d-none" role="alert"></div><p>Vas a eliminar el producto seleccionado:</p><dl class="row mb-3"><dt class="col-sm-4">ID</dt><dd id="delete-product-id" class="col-sm-8"></dd><dt class="col-sm-4">Nombre</dt><dd id="delete-product-name" class="col-sm-8"></dd><dt class="col-sm-4">Marca</dt><dd id="delete-product-brand" class="col-sm-8"></dd></dl><p class="text-danger mb-0">Esta acción no se puede deshacer.</p></div><div class="modal-footer"><button type="button" class="btn btn-outline-umbrella" data-bs-dismiss="modal">Cancelar</button><button id="product-delete-confirm" type="button" class="btn btn-primary-umbrella">Sí, eliminar producto</button></div></div></div></div>
 {% endblock %}
+
+{% block extra_js %}<script src="{{ url_for('static', path='/js/products.js') }}"></script>{% endblock %}
