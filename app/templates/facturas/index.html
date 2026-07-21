@@ -1,29 +1,11 @@
-{% extends "base.html" %}
-{% import 'components/macros.html' as ui %}
-
-{% block title %}Facturas - Umbrella Tech{% endblock %}
-{% block page_title %}Facturas Umbrella Tech{% endblock %}
-
+{% extends "base.html" %}{% import 'components/macros.html' as ui %}
+{% block title %}Facturas - Umbrella Tech{% endblock %}{% block page_title %}Facturas Umbrella Tech{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-end align-items-center mb-3">
-    <div class="btn-group" role="group">
-        <button type="button" class="btn btn-primary-umbrella">Floresta</button>
-        <button type="button" class="btn btn-outline-umbrella">Sur</button>
-    </div>
-</div>
-
-{% call ui.toolbar('Facturas', '') %}
-    {{ ui.btn('Nuevo', icon='fas fa-plus', type='primary') }}
-    {{ ui.btn('Editar', icon='fas fa-pen', type='outline') }}
-    {{ ui.btn('Eliminar', icon='fas fa-trash', type='outline') }}
-    {{ ui.btn('Actualizar', icon='fas fa-sync', type='outline') }}
-{% endcall %}
-
-{% call ui.table_base(['Id Factura', 'Id Empleado', 'Id Cliente', 'Fecha', 'Total']) %}
-    <tr>
-        <td colspan="5" class="text-center py-4 text-muted">Módulo en construcción (Próxima etapa)</td>
-    </tr>
-{% endcall %}
-
-{{ ui.pagination() }}
-{% endblock %}
+<div class="d-flex justify-content-end mb-3"><select id="invoice-branch-filter" class="form-select" style="max-width:230px"><option value="">Todas las sedes</option><option value="001">001 - Tienda Floresta</option><option value="002">002 - Tienda Sur</option></select></div>
+<div class="toolbar-umbrella"><div class="input-group" style="max-width:300px"><input id="invoice-search" type="search" class="form-control" placeholder="Buscar facturas..."><button id="invoice-search-button" class="btn btn-outline-secondary"><i class="fas fa-search"></i></button></div><div class="toolbar-actions"><button class="btn btn-primary-umbrella" data-bs-toggle="modal" data-bs-target="#invoiceCreateModal"><i class="fas fa-plus me-2"></i>Nuevo</button><button id="edit-invoice-button" class="btn btn-outline-umbrella" disabled><i class="fas fa-pen me-2"></i>Editar</button><button id="delete-invoice-button" class="btn btn-outline-umbrella" disabled><i class="fas fa-trash me-2"></i>Eliminar</button><button id="refresh-invoices-button" class="btn btn-outline-umbrella"><i class="fas fa-sync me-2"></i>Actualizar</button></div></div>
+{% call ui.table_base(['ID factura','Sede','Fecha','Cliente','Empleado','Total'], id='invoices-table') %}<tr><td colspan="6" class="text-center py-4 text-muted">Cargando facturas...</td></tr>{% endcall %}{{ ui.pagination() }}
+{% macro invoice_fields(prefix='', include_id=false, readonly=false) %}<div class="row g-3">{% if include_id %}<div class="col-md-3"><label class="form-label">ID factura</label><input id="{{prefix}}id_factura" {% if not readonly %}name="id_factura"{% endif %} type="number" min="1" class="form-control" {% if readonly %}readonly{% else %}required{% endif %}></div>{% endif %}<div class="col-md-3"><label class="form-label">Sede</label>{% if readonly %}<input id="{{prefix}}id_sede" class="form-control" readonly>{% else %}<select id="{{prefix}}id_sede" name="id_sede" class="form-select" required><option value="001">001 - Tienda Floresta</option><option value="002">002 - Tienda Sur</option></select>{% endif %}</div><div class="col-md-6"><label class="form-label">Empleado</label><select id="{{prefix}}id_empleado" name="id_empleado" class="form-select" required></select></div><div class="col-md-6"><label class="form-label">Cliente</label><select id="{{prefix}}id_cliente" name="id_cliente" class="form-select"></select></div><div class="col-md-3"><label class="form-label">Fecha</label><input id="{{prefix}}fecha" name="fecha" type="date" class="form-control"></div><div class="col-md-3"><label class="form-label">Total</label><input id="{{prefix}}total" name="total" type="number" min="0" step="0.01" class="form-control" required></div></div>{% endmacro %}
+<div class="modal fade" id="invoiceCreateModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><form id="invoice-create-form"><div class="modal-header"><h5 class="modal-title">Nueva factura</h5><button class="btn-close" type="button" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="invoice-create-message" class="d-none"></div>{{ invoice_fields('',true) }}</div><div class="modal-footer"><button class="btn btn-outline-umbrella" type="button" data-bs-dismiss="modal">Cancelar</button><button id="invoice-create-submit" class="btn btn-primary-umbrella">Guardar factura</button></div></form></div></div></div>
+<div class="modal fade" id="invoiceEditModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><form id="invoice-edit-form"><div class="modal-header"><h5 class="modal-title">Editar factura</h5><button class="btn-close" type="button" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="invoice-edit-message" class="d-none"></div>{{ invoice_fields('edit-',true,true) }}</div><div class="modal-footer"><button class="btn btn-outline-umbrella" type="button" data-bs-dismiss="modal">Cancelar</button><button id="invoice-edit-submit" class="btn btn-primary-umbrella">Guardar cambios</button></div></form></div></div></div>
+<div class="modal fade" id="invoiceDeleteModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Eliminar factura</h5><button class="btn-close" type="button" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="invoice-delete-message" class="d-none"></div><p>Vas a eliminar la factura seleccionada:</p><dl class="row"><dt class="col-sm-5">ID / Sede</dt><dd id="delete-invoice-id" class="col-sm-7"></dd><dt class="col-sm-5">Fecha</dt><dd id="delete-invoice-date" class="col-sm-7"></dd><dt class="col-sm-5">Cliente</dt><dd id="delete-invoice-client" class="col-sm-7"></dd><dt class="col-sm-5">Empleado</dt><dd id="delete-invoice-employee" class="col-sm-7"></dd><dt class="col-sm-5">Total</dt><dd id="delete-invoice-total" class="col-sm-7"></dd></dl><p class="text-danger">Esta acción no se puede deshacer.</p></div><div class="modal-footer"><button class="btn btn-outline-umbrella" type="button" data-bs-dismiss="modal">Cancelar</button><button id="invoice-delete-confirm" class="btn btn-primary-umbrella">Sí, eliminar factura</button></div></div></div></div>
+{% endblock %}{% block extra_js %}<script src="{{ url_for('static', path='/js/invoices.js') }}"></script>{% endblock %}
