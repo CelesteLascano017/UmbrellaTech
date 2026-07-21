@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from app.core.config import get_settings
 from app.core.logging_config import configure_logging
-from app.routers import clients, health, pages, products
+from app.routers import clients, health, inventory, pages, products
 
 configure_logging()
 settings = get_settings()
@@ -21,3 +21,4 @@ app.include_router(pages.router)
 app.include_router(health.router)
 app.include_router(clients.router)
 app.include_router(products.router)
+app.include_router(inventory.router)

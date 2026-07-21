@@ -6,25 +6,27 @@
 
 {% block content %}
 <div class="d-flex justify-content-end align-items-center mb-3">
-    <!-- Visual representation of Sede switch as per mockup -->
-    <div class="btn-group" role="group">
-        <button type="button" class="btn btn-primary-umbrella">Floresta</button>
-        <button type="button" class="btn btn-outline-umbrella">Sur</button>
+    <select id="inventory-branch-filter" class="form-select" style="max-width: 230px;">
+        <option value="">Todas las sedes</option><option value="001">001 - Tienda Floresta</option><option value="002">002 - Tienda Sur</option>
+    </select>
+</div>
+<div class="toolbar-umbrella">
+    <div class="input-group" style="max-width: 300px;"><input id="inventory-search" type="search" class="form-control" placeholder="Buscar inventario..."><button id="inventory-search-button" class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button></div>
+    <div class="toolbar-actions">
+        <button type="button" class="btn btn-primary-umbrella" data-bs-toggle="modal" data-bs-target="#inventoryCreateModal"><i class="fas fa-plus me-2"></i>Nuevo</button>
+        <button id="edit-inventory-button" type="button" class="btn btn-outline-umbrella" disabled><i class="fas fa-pen me-2"></i>Editar</button>
+        <button id="delete-inventory-button" type="button" class="btn btn-outline-umbrella" disabled><i class="fas fa-trash me-2"></i>Eliminar</button>
+        <button id="refresh-inventory-button" type="button" class="btn btn-outline-umbrella"><i class="fas fa-sync me-2"></i>Actualizar</button>
     </div>
 </div>
 
-{% call ui.toolbar('Inventario', '') %}
-    {{ ui.btn('Nuevo', icon='fas fa-plus', type='primary') }}
-    {{ ui.btn('Editar', icon='fas fa-pen', type='outline') }}
-    {{ ui.btn('Eliminar', icon='fas fa-trash', type='outline') }}
-    {{ ui.btn('Actualizar', icon='fas fa-sync', type='outline') }}
-{% endcall %}
-
-{% call ui.table_base(['Id Sede', 'Id Producto', 'Producto', 'Cantidad']) %}
-    <tr>
-        <td colspan="4" class="text-center py-4 text-muted">Módulo en construcción (Próxima etapa)</td>
-    </tr>
-{% endcall %}
-
+{% call ui.table_base(['ID producto', 'Producto', 'Sede', 'Cantidad'], id='inventory-table') %}<tr><td colspan="4" class="text-center py-4 text-muted">Cargando inventario...</td></tr>{% endcall %}
 {{ ui.pagination() }}
+
+<div class="modal fade" id="inventoryCreateModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><form id="inventory-create-form"><div class="modal-header"><h5 class="modal-title">Nuevo inventario</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><div id="inventory-create-message" class="d-none" role="alert"></div><div class="row g-3"><div class="col-md-6"><label for="inventory-product" class="form-label">Producto</label><select id="inventory-product" name="id_producto" class="form-select" required><option value="">Cargando productos...</option></select></div><div class="col-md-3"><label for="inventory-branch" class="form-label">Sede</label><select id="inventory-branch" name="id_sede" class="form-select" required><option value="001">001 - Tienda Floresta</option><option value="002">002 - Tienda Sur</option></select></div><div class="col-md-3"><label for="inventory-quantity" class="form-label">Cantidad</label><input id="inventory-quantity" name="cantidad" type="number" min="0" step="1" class="form-control" required></div></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-umbrella" data-bs-dismiss="modal">Cancelar</button><button id="inventory-create-submit" type="submit" class="btn btn-primary-umbrella">Guardar inventario</button></div></form></div></div></div>
+
+<div class="modal fade" id="inventoryEditModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><form id="inventory-edit-form"><div class="modal-header"><h5 class="modal-title">Editar inventario</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><div id="inventory-edit-message" class="d-none" role="alert"></div><div class="row g-3"><div class="col-md-3"><label for="edit-inventory-product-id" class="form-label">ID producto</label><input id="edit-inventory-product-id" class="form-control" readonly></div><div class="col-md-5"><label for="edit-inventory-product-name" class="form-label">Producto</label><input id="edit-inventory-product-name" class="form-control" readonly></div><div class="col-md-2"><label for="edit-inventory-branch" class="form-label">Sede</label><input id="edit-inventory-branch" class="form-control" readonly></div><div class="col-md-2"><label for="edit-inventory-quantity" class="form-label">Cantidad</label><input id="edit-inventory-quantity" name="cantidad" type="number" min="0" step="1" class="form-control" required></div></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-umbrella" data-bs-dismiss="modal">Cancelar</button><button id="inventory-edit-submit" type="submit" class="btn btn-primary-umbrella">Guardar cambios</button></div></form></div></div></div>
+
+<div class="modal fade" id="inventoryDeleteModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Eliminar inventario</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><div id="inventory-delete-message" class="d-none" role="alert"></div><p>Vas a eliminar el registro seleccionado:</p><dl class="row mb-3"><dt class="col-sm-5">ID producto</dt><dd id="delete-inventory-product-id" class="col-sm-7"></dd><dt class="col-sm-5">Producto</dt><dd id="delete-inventory-product-name" class="col-sm-7"></dd><dt class="col-sm-5">Sede</dt><dd id="delete-inventory-branch" class="col-sm-7"></dd><dt class="col-sm-5">Cantidad</dt><dd id="delete-inventory-quantity" class="col-sm-7"></dd></dl><p class="text-danger mb-0">Esta acción no se puede deshacer.</p></div><div class="modal-footer"><button type="button" class="btn btn-outline-umbrella" data-bs-dismiss="modal">Cancelar</button><button id="inventory-delete-confirm" type="button" class="btn btn-primary-umbrella">Sí, eliminar inventario</button></div></div></div></div>
 {% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', path='/js/inventory.js') }}"></script>{% endblock %}
