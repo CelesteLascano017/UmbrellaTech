@@ -111,6 +111,27 @@ class DatabaseManager:
                 return None
             return self._rows_to_dicts(cursor, [row])[0]
 
+    def execute_and_fetch_one(
+        self, query: str, parameters: Sequence[Any] = ()
+    ) -> dict[str, Any] | None:
+        """Execute a parameterized command and return its first result row."""
+        with self.connection() as connection:
+            try:
+                with self._cursor(connection) as cursor:
+                    cursor.execute(query, tuple(parameters))
+                    while cursor.description is None:
+                        if not cursor.nextset():
+                            connection.commit()
+                            return None
+                    row = cursor.fetchone()
+                    result = None if row is None else self._rows_to_dicts(cursor, [row])[0]
+                connection.commit()
+                return result
+            except DatabaseQueryError:
+                connection.rollback()
+                logger.warning("SQL operation rolled back.")
+                raise
+
     def execute(self, query: str, parameters: Sequence[Any] = ()) -> int:
         """Execute a parameterized write query and commit it."""
         with self.connection() as connection:

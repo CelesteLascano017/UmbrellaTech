@@ -6,25 +6,164 @@
 
 {% block content %}
 <div class="d-flex justify-content-end align-items-center mb-3">
-    <!-- Componente para simular selector de sede visualmente si fuese necesario, 
-         aunque clientes es vista global, el mockup dice "Sede Floresta/Sur" arriba a la derecha. -->
     <div class="badge bg-light text-dark border p-2">
         Sede: <span class="fw-bold">General</span>
     </div>
 </div>
 
 {% call ui.toolbar('Clientes', '') %}
-    {{ ui.btn('Nuevo', icon='fas fa-plus', type='primary') }}
-    {{ ui.btn('Editar', icon='fas fa-pen', type='outline') }}
-    {{ ui.btn('Eliminar', icon='fas fa-trash', type='outline') }}
+    <button type="button" class="btn btn-primary-umbrella" data-bs-toggle="modal" data-bs-target="#clientCreateModal">
+        <i class="fas fa-plus me-2"></i>Nuevo
+    </button>
+    <button id="edit-client-button" type="button" class="btn btn-outline-umbrella" disabled>
+        <i class="fas fa-pen me-2"></i>Editar
+    </button>
+    <button id="delete-client-button" type="button" class="btn btn-outline-umbrella" disabled>
+        <i class="fas fa-trash me-2"></i>Eliminar
+    </button>
     {{ ui.btn('Actualizar', icon='fas fa-sync', type='outline') }}
 {% endcall %}
 
-{% call ui.table_base(['Id Cliente', 'Sede', 'Nombre', 'Apellido', 'Dirección', 'Teléfono']) %}
+{% call ui.table_base(['ID', 'Nombre', 'Apellido', 'Dirección', 'Correo', 'Teléfono', 'Sede'], id='clients-table') %}
     <tr>
-        <td colspan="6" class="text-center py-4 text-muted">Módulo en construcción (Próxima etapa)</td>
+        <td colspan="7" class="text-center py-4 text-muted">Cargando clientes...</td>
     </tr>
 {% endcall %}
 
 {{ ui.pagination() }}
+
+<div class="modal fade" id="clientCreateModal" tabindex="-1" aria-labelledby="clientCreateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form id="client-create-form">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clientCreateModalLabel">Nuevo cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="client-form-message" class="d-none" role="alert"></div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="id_cliente" class="form-label">ID del cliente</label>
+                            <input id="id_cliente" name="id_cliente" type="number" min="1" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input id="nombre" name="nombre" type="text" maxlength="50" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="apellido" class="form-label">Apellido</label>
+                            <input id="apellido" name="apellido" type="text" maxlength="50" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="direccion" class="form-label">Dirección</label>
+                            <input id="direccion" name="direccion" type="text" maxlength="150" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Correo</label>
+                            <input id="email" name="email" type="email" maxlength="100" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input id="telefono" name="telefono" type="text" maxlength="20" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_sede" class="form-label">Sede</label>
+                            <select id="id_sede" name="id_sede" class="form-select" required>
+                                <option value="001">001 - Tienda Floresta</option>
+                                <option value="002">002 - Tienda Sur</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-umbrella" data-bs-dismiss="modal">Cancelar</button>
+                    <button id="client-submit-button" type="submit" class="btn btn-primary-umbrella">Guardar cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="clientEditModal" tabindex="-1" aria-labelledby="clientEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form id="client-edit-form">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clientEditModalLabel">Editar cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="client-edit-form-message" class="d-none" role="alert"></div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="edit-id_cliente" class="form-label">ID del cliente</label>
+                            <input id="edit-id_cliente" type="number" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="edit-id_sede" class="form-label">Sede</label>
+                            <input id="edit-id_sede" type="text" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="edit-nombre" class="form-label">Nombre</label>
+                            <input id="edit-nombre" name="nombre" type="text" maxlength="50" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="edit-apellido" class="form-label">Apellido</label>
+                            <input id="edit-apellido" name="apellido" type="text" maxlength="50" class="form-control" required>
+                        </div>
+                        <div class="col-md-8">
+                            <label for="edit-direccion" class="form-label">Dirección</label>
+                            <input id="edit-direccion" name="direccion" type="text" maxlength="150" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-email" class="form-label">Correo</label>
+                            <input id="edit-email" name="email" type="email" maxlength="100" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-telefono" class="form-label">Teléfono</label>
+                            <input id="edit-telefono" name="telefono" type="text" maxlength="20" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-umbrella" data-bs-dismiss="modal">Cancelar</button>
+                    <button id="client-edit-submit-button" type="submit" class="btn btn-primary-umbrella">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="clientDeleteModal" tabindex="-1" aria-labelledby="clientDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clientDeleteModalLabel">Eliminar cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="client-delete-form-message" class="d-none" role="alert"></div>
+                <p>Vas a eliminar al cliente seleccionado:</p>
+                <dl class="row mb-3">
+                    <dt class="col-sm-4">ID</dt>
+                    <dd id="delete-client-id" class="col-sm-8"></dd>
+                    <dt class="col-sm-4">Nombre</dt>
+                    <dd id="delete-client-name" class="col-sm-8"></dd>
+                    <dt class="col-sm-4">Sede</dt>
+                    <dd id="delete-client-branch" class="col-sm-8"></dd>
+                </dl>
+                <p class="text-danger mb-0">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-umbrella" data-bs-dismiss="modal">Cancelar</button>
+                <button id="client-delete-confirm-button" type="button" class="btn btn-primary-umbrella">Sí, eliminar cliente</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', path='/js/clients.js') }}"></script>
 {% endblock %}
