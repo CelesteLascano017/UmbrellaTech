@@ -30,6 +30,10 @@ async def inventario(request: Request):
 async def facturas(request: Request):
     return templates.TemplateResponse("facturas/index.html", {"request": request, "active_page": "facturas"})
 
+@router.get("/detalle-factura", response_class=HTMLResponse)
+async def detalle_factura(request: Request):
+    return templates.TemplateResponse("detalle_factura/index.html", {"request": request, "active_page": "facturas"})
+
 @router.get("/empleados", response_class=HTMLResponse)
 async def empleados(request: Request):
     return templates.TemplateResponse("empleados/index.html", {"request": request, "active_page": "empleados"})
