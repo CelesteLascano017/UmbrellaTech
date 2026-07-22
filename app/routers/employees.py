@@ -12,6 +12,10 @@ def data(r:dict[str,Any])->dict[str,Any]:return {"id_empleado":r["id_empleado"],
 def get_all_employees()->dict[str,Any]:
  try:return {"success":True,"message":"Empleados obtenidos correctamente.","data":employee_service.get_all_employees()}
  except DatabaseError:return err(503,"No fue posible obtener los empleados.")
+@router.get("/fragments/{id_sede}")
+def get_employee_fragments(id_sede:Literal["001","002"]=Path())->dict[str,Any]:
+ try:return {"success":True,"message":"Fragmentos de empleados obtenidos correctamente.","data":employee_service.get_employee_fragments(id_sede)}
+ except DatabaseError:return err(503,"No fue posible obtener los fragmentos de empleados.")
 @router.post("",status_code=status.HTTP_201_CREATED)
 def create_employee(d:EmployeeCreate)->dict[str,Any]:
  try:return {"success":True,"message":"Empleado registrado correctamente.","data":data(employee_service.create_employee(d))}

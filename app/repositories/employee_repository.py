@@ -6,6 +6,9 @@ from app.schemas.employee import EmployeeCreate,EmployeeUpdate
 class EmployeeRepository:
  def __init__(self,database:DatabaseManager=database_manager)->None:self._database=database
  def get_all_employees(self)->list[dict[str,Any]]:return self._database.fetch_all("SELECT id_empleado,id_sede,nombre,apellido,NIC,edad,telefono,sueldo FROM dbo.vw_Empleado ORDER BY id_sede,id_empleado;")
+ def get_admin_employees_001(self)->list[dict[str,Any]]:return self._database.fetch_all("SELECT id_empleado,nombre,apellido,NIC,edad,id_sede FROM dbo.Empleado_Admin_001 ORDER BY id_empleado;")
+ def get_payroll_employees(self)->list[dict[str,Any]]:return self._database.fetch_all("SELECT id_empleado,telefono,sueldo FROM dbo.Empleado_Nomina ORDER BY id_empleado;")
+ def get_admin_employees_002(self)->list[dict[str,Any]]:return self._database.fetch_all("SELECT id_empleado,nombre,apellido,NIC,edad,id_sede FROM [DUMDUM].[TIENDA_SUR].[dbo].[Empleado_Admin_002] ORDER BY id_empleado;")
  def create_employee(self,d:EmployeeCreate)->dict[str,Any]:return self._exec("EXEC dbo.usp_Empleado_Crear @id_empleado=?,@id_sede=?,@nombre=?,@apellido=?,@NIC=?,@edad=?,@telefono=?,@sueldo=?;",(d.id_empleado,d.id_sede,d.nombre,d.apellido,d.NIC,d.edad,d.telefono,d.sueldo),True)
  def update_employee(self,i:int,s:str,d:EmployeeUpdate)->dict[str,Any]:return self._exec("EXEC dbo.usp_Empleado_Actualizar @id_empleado=?,@id_sede=?,@nombre=?,@apellido=?,@NIC=?,@edad=?,@telefono=?,@sueldo=?;",(i,s,d.nombre,d.apellido,d.NIC,d.edad,d.telefono,d.sueldo))
  def delete_employee(self,i:int,s:str)->dict[str,Any]:return self._exec("EXEC dbo.usp_Empleado_Eliminar @id_empleado=?,@id_sede=?;",(i,s))
